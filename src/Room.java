@@ -25,6 +25,7 @@ public class Room {
     }
 
     private static String generateChecksum(String name) {
+        // Set<Pair<Character, Integer>> charCounts = new HashSet<>();
         Map<Character, Integer> charCounts = new HashMap<>();
         // count all alphabetical characters [a-z]
         for (int i = 0; i < name.length(); i++) {
