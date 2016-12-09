@@ -24,6 +24,7 @@ public class Main extends Application {
     private List<String> lines;
     private List<Room> inputRooms;
     private int idSum = 0;
+    private List<String> decodedRoomNames;
 
     public static void main(String[] args) {
         launch(args);
@@ -55,7 +56,14 @@ public class Main extends Application {
         readLines();
         parseLines();
         compareRooms();
+        printDecodedRooms();
         tfOutput.setText("sum of IDs of legit rooms: " + idSum);
+    }
+
+    private void printDecodedRooms() {
+        for (String roomname : decodedRoomNames) {
+            System.out.println(roomname);
+        }
     }
 
     private void readLines() {
@@ -79,17 +87,33 @@ public class Main extends Application {
             String inputCheckSumWithBrackets = lineWithoutId[1];
             String idString = line.replace(nameWithHymens, "").replace(inputCheckSumWithBrackets, "");
             int id = Integer.parseInt(idString);
-            String name = nameWithHymens.replace("-", "");
+            String name = nameWithHymens.replace("-", " ");
             String inputChecksum = inputCheckSumWithBrackets.replace("[", "").replace("]", "");
             inputRooms.add(new Room(name, id, inputChecksum));
         }
     }
 
     private void compareRooms() {
+        decodedRoomNames = new ArrayList<>();
         for (Room room : inputRooms) {
-            if (room.equals(new Room(room.getName(), room.getId()))) {
+            if (room.getChecksum().equals(Room.generateChecksum(room.getName()))) {
                 idSum += room.getId();
+                decodedRoomNames.add(caesar(room.getName(), room.getId()) + ": " + room.getId());
             }
         }
+    }
+
+    private String caesar(String zuKodieren, int versatz) {
+
+        StringBuilder output = new StringBuilder("");
+        int temp;
+        for (int i = 0; i < zuKodieren.length(); i++) {
+            temp = zuKodieren.charAt(i);
+            if (temp >= 97 && temp <= 122) {
+                temp = ((temp + versatz - 97) % 26) + 97;
+            }
+            output.append((char)temp);
+        }
+        return output.toString();
     }
 }

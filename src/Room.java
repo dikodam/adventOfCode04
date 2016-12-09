@@ -1,5 +1,9 @@
-import java.util.HashMap;
-import java.util.Map;
+import com.sun.corba.se.impl.encoding.OSFCodeSetRegistry;
+import javafx.collections.transformation.SortedList;
+import javafx.util.Pair;
+
+import javax.jnlp.IntegrationService;
+import java.util.*;
 
 /**
  * Created by Adam on 07.12.2016.
@@ -24,28 +28,46 @@ public class Room {
         this.checksum = checksum;
     }
 
-    private static String generateChecksum(String name) {
-        // Set<Pair<Character, Integer>> charCounts = new HashSet<>();
-        Map<Character, Integer> charCounts = new HashMap<>();
-        // count all alphabetical characters [a-z]
+    public static String generateChecksum(String name) {
+        List<Map.Entry<Character, Integer>> charCounts = new ArrayList<>();
+
+        Map<Character, Integer> usedChars = new HashMap<>();
+
         for (int i = 0; i < name.length(); i++) {
             Character c = new Character(name.charAt(i));
-            Integer count = charCounts.get(c);
-            if (count == null) {
-                charCounts.put(c, 1);
-            } else {
-                charCounts.put(c, count + 1);
+            if (c >= 97 && c <= 122) {
+                Integer count = usedChars.get(c);
+                if (count == null) {
+                    usedChars.put(c, 1);
+                } else {
+                    usedChars.put(c, count + 1);
+                }
             }
         }
-        // sort them by 1. quantity 2. alphabet
-        // return first 5
+
+        for (Map.Entry<Character, Integer> entry : usedChars.entrySet()) {
+            charCounts.add(entry);
+        }
+
+        charCounts.sort((o1, o2) -> {
+            int intComparison = o2.getValue().compareTo(o1.getValue());
+            if (intComparison == 0) {
+                return o1.getKey().compareTo(o2.getKey());
+            } else {
+                return intComparison;
+            }
+        });
+
         StringBuilder sb = new StringBuilder("");
+        for (int i = 0; i < 5; i++) {
+            sb.append(charCounts.get(i).getKey());
+        }
         return sb.toString();
     }
 
     @Override
     public boolean equals(Object obj) {
-        return ((Room)obj).getChecksum() == checksum;
+        return ((Room) obj).getChecksum() == checksum;
     }
 
     public String getName() {
@@ -56,7 +78,7 @@ public class Room {
         return id;
     }
 
-    public String getChecksum(){
+    public String getChecksum() {
         return checksum;
     }
 }
